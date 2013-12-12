@@ -40,6 +40,7 @@ var figue = function () {
 		var N = vec1.length;
 		var d = 0;
 		if(typeof weights === "undefined"){
+			weights = [];
 			for(var i = 0; i < N;  i++){
 				weights.push(100);
 			}
@@ -229,6 +230,7 @@ var figue = function () {
 		else if (distance == figue.MAX_DISTANCE)
 			distance = maxDistance ;
 		else if (distance == figue.CUSTOM_DISTANCE)
+			distance = customDistance ;
 
 		// Initialize distance matrix and vector of closest clusters
 		for (i = 0 ; i < N ; i++) {

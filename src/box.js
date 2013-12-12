@@ -6,8 +6,16 @@ var Box = Backbone.Model.extend({
 
 	//constructor
 	initialize: function(element){
+		element.uniqueId();
+		var id = element.attr("id");
 		this.set({
-			id: element.uniqueId()
+			id: id,
+			color: element.css("color"),
+            bgColor: element.css("background-color"),
+            width: element.width(),
+            height: element.height(),
+            textDecoration: element.css("text-decoration"),
+            fontStyle: element.css("font-style"),
 		});
 		Box.boxes[id] = this;
 	},
@@ -27,6 +35,11 @@ var Box = Backbone.Model.extend({
 		for(var i=0; i< elements.length; i++){
 			this.addRelation(elements[i], score);
 		}
+	},
+	createVector: function(){
+		var element = this.get("element");
+		vector = [element.width(), element.height(), element.css("color"), element.css("text-decoration"), element.css("font-style"), element.css("background-color")];
+		return vector;
 	}
 }, {
 	//class variables
@@ -34,7 +47,7 @@ var Box = Backbone.Model.extend({
 	
 	//class methods
 	find: function(id){
-		return boxes[id];
+		return Box.boxes[id];
 	},
 	createMulti: function(group){
 		var thisGroupboxes = group.get("boxes");
@@ -51,5 +64,32 @@ var Box = Backbone.Model.extend({
 			var box = Box.find(thisGroupboxes[i].attr("id"));
 			box.addRelations(_.clone(thisGroupboxes));
 		}
+	},
+	agglomerate: function(){
+		var boxes = Box.boxes;
+		vectors = [];
+		labels = Object.keys(boxes);
+		for(var id in boxes){
+			var box = boxes[id];
+			vectors[labels.indexOf(id)] = box.createVector();
+		}
+		var root = figue.agglomerate(labels, vectors, figue.CUSTOM_DISTANCE, figue.SINGLE_LINKAGE);
+		console.log(root.buildDendogram (5, true, true, true, true));
+		console.log("fin de l'opération");
+		return root;
+	},
+	getBoxesJson: function(){
+		var boxes = Box.boxes;
+		return _.map(boxes, function(box){
+			return {
+				id: box.get("id"),
+				color: box.get("color"),
+				bgColor: box.get("bgColor"),
+				width: box.get("width"),
+				height: box.get("height"),
+				textDecoration: box.get("textDecoration"),
+				fontStyle: box.get("fontStyle")
+			};
+		});
 	}
 });

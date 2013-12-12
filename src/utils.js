@@ -29,16 +29,11 @@ var Utils = Backbone.Model.extend({},{
             throw "Argument number error";
         }
     },
-    loadBody: function(url){
-        $.get(url, function(data){
-            console.log($(data).$("body"));
-        });
-    },
     filterUnrelevantElements: function(elements){
         var i = elements.length;
         while(i--){
             element = $(elements[i]);
-            if(!(element.text()) && element.prop("tagName").toUpperCase() != "IMG" || element.prop("tagName").toUpperCase()  === "SCRIPT" || element.width() === 0 || element.height() === 0)
+            if(!(element.text()) && element.prop("tagName").toUpperCase() != "IMG" || element.width() === 0 || element.height() === 0)
                 elements.splice(i,1);
         }
     }
