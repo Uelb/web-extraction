@@ -14,7 +14,7 @@ var figue = function () {
 		var N = vec1.length ;
 		var d = 0 ;
 		for (var i = 0 ; i < N ; i++)
-			d += Math.pow (vec1[i] - vec2[i], 2);
+			d += Math.pow (vec1[i] - vec2[i], 2)
 		d = Math.sqrt (d) ;
 		return d ;
 	}
@@ -23,7 +23,7 @@ var figue = function () {
 		var N = vec1.length ;
 		var d = 0 ;
 		for (var i = 0 ; i < N ; i++)
-			d += Math.abs (vec1[i] - vec2[i]);
+			d += Math.abs (vec1[i] - vec2[i])
 		return d ;
 	}
 
@@ -35,28 +35,13 @@ var figue = function () {
 		return d ;
 	}
 
-	// Add a custom distance to the figue library
-	function customDistance(vec1, vec2, weights){
-		var N = vec1.length;
-		var d = 0;
-		if(typeof weights === "undefined"){
-			weights = [];
-			for(var i = 0; i < N;  i++){
-				weights.push(100);
-			}
-		}
-		for (var j = 0 ; j < N ; j++)
-			if(vec1[j] == vec2[j])
-				d+= weights[j];
-	}
-
 	function addVectors (vec1 , vec2) {
 		var N = vec1.length ;
 		var vec = new Array(N) ;
 		for (var i = 0 ; i < N ; i++)
 			vec[i] = vec1[i] + vec2[i] ;
 		return vec ;
-	}
+	}	
 
 	function multiplyVectorByValue (value , vec) {
 		var N = vec.length ;
@@ -64,7 +49,7 @@ var figue = function () {
 		for (var i = 0 ; i < N ; i++)
 			v[i] = value * vec[i] ;
 		return v ;
-	}
+	}	
 	
 	function vectorDotProduct (vec1, vec2) {
 		var N = vec1.length ;
@@ -85,9 +70,9 @@ var figue = function () {
 	function calculateCentroid (c1Size , c1Centroid , c2Size , c2Centroid) {
 		var newCentroid = new Array(c1Centroid.length) ;
 		var newSize = c1Size + c2Size ;
-		for (var i = 0 ; i < c1Centroid.length ; i++)
+		for (var i = 0 ; i < c1Centroid.length ; i++) 
 			newCentroid[i] = (c1Size * c1Centroid[i] + c2Size * c2Centroid[i]) / newSize ;
-		return newCentroid;
+		return newCentroid ;	
 	}
 
 
@@ -110,32 +95,32 @@ var figue = function () {
 
 	function prettyVector(vector) {
 		var vals = new Array(vector.length) ;
-		var precision = Math.pow(10, figue.PRINT_VECTOR_VALUE_PRECISION) ;
+		var precision = Math.pow(10, figue.PRINT_VECTOR_VALUE_PRECISION) ; 
 		for (var i = 0 ; i < vector.length ; i++)
 			vals[i] = Math.round(vector[i]*precision)/precision ;
-		return vals.join(",");
+		return vals.join(",")
 	}
 
 	function prettyValue(value) {
-		var precision = Math.pow(10, figue.PRINT_VECTOR_VALUE_PRECISION) ;
+		var precision = Math.pow(10, figue.PRINT_VECTOR_VALUE_PRECISION) ; 
 		return String (Math.round(value*precision)/precision) ;
 	}
 
 	function generateDendogram(tree, sep, balanced, withLabel, withCentroid, withDistance) {
-		var lines = [] ;
+		var lines = new Array ;
 		var centroidstr = prettyVector(tree.centroid) ;
 		if (tree.isLeaf()) {
 			var labelstr = String(tree.label) ;
 			var len = 1;
-			if (withCentroid)
+			if (withCentroid) 
 				len = Math.max(centroidstr.length , len) ;
 			if (withLabel)
 				len = Math.max(labelstr.length , len) ;
 
 			lines.push (centerString ("|" , len)) ;
-			if (withCentroid)
+			if (withCentroid) 
 				lines.push (centerString (centroidstr , len)) ;
-			if (withLabel)
+			if (withLabel) 
 				lines.push (centerString (labelstr , len)) ;
 
 		} else {
@@ -147,9 +132,9 @@ var figue = function () {
 	
 			// calculate nb of chars of each line
 			var len = sep + right_dendo[0].length + left_dendo[0].length ;
-			if (withCentroid)
+			if (withCentroid) 
 				len = Math.max(centroidstr.length , len) ;
-			if (withDistance)
+			if (withDistance) 
 				len = Math.max(distancestr.length , len) ;
 
 
@@ -191,19 +176,19 @@ var figue = function () {
 			}
 		
 			// merge the left and right subtrees 
-			for (var j = 0 ; j < Math.max (left_dendo.length , right_dendo.length) ; j++) {
+			for (var i = 0 ; i < Math.max (left_dendo.length , right_dendo.length) ; i++) {
 				var left = "" ;
-				if (j < left_dendo.length)
-					left = left_dendo[j] ;
+				if (i < left_dendo.length)
+					left = left_dendo[i] ;
 				else
 					left = repeatChar (" " , left_dendo[0].length) ;
 	
 				var right = "" ;
-				if (j < right_dendo.length)
-					right = right_dendo[j] ;
+				if (i < right_dendo.length)
+					right = right_dendo[i] ;
 				else
 					right = repeatChar (" " , right_dendo[0].length) ;
-				lines.push(left + repeatChar (" " , sep) + right) ;
+				lines.push(left + repeatChar (" " , sep) + right) ;	
 				var l = left + repeatChar (" " , sep) + right ;
 			}
 		}
@@ -229,8 +214,6 @@ var figue = function () {
 			distance = manhattanDistance ;
 		else if (distance == figue.MAX_DISTANCE)
 			distance = maxDistance ;
-		else if (distance == figue.CUSTOM_DISTANCE)
-			distance = customDistance ;
 
 		// Initialize distance matrix and vector of closest clusters
 		for (i = 0 ; i < N ; i++) {
@@ -281,13 +264,13 @@ var figue = function () {
 					if (distMatrix[c1][j] < distMatrix[c2][j])
 						distMatrix[j][c1] = distMatrix[c1][j] = distMatrix[c2][j] ;
 				} else if (linkage == figue.AVERAGE_LINKAGE) {
-					var avg = ( cSize[c1] * distMatrix[c1][j] + cSize[c2] * distMatrix[c2][j])  / (cSize[c1] + cSize[j]);
+					var avg = ( cSize[c1] * distMatrix[c1][j] + cSize[c2] * distMatrix[c2][j])  / (cSize[c1] + cSize[j]) 
 					distMatrix[j][c1] = distMatrix[c1][j] = avg ;
 				}
 			}
 			distMatrix[c1][c1] = Infinity ;
 		
-			// infinity ­out old row c2 and column c2
+			// infinity ­out old row c2 and column c2
 			for (i = 0 ; i < N ; i++)
 				distMatrix[i][c2] = distMatrix[c2][i] = Infinity ;
 	
@@ -295,7 +278,7 @@ var figue = function () {
 			for (j = 0; j < N ; j++) {
 				if (dMin[j] == c2)
 					dMin[j] = c1;
-				if (distMatrix[c1][j] < distMatrix[c1][dMin[c1]])
+				if (distMatrix[c1][j] < distMatrix[c1][dMin[c1]]) 
 					dMin[c1] = j;
 			}
 	
@@ -313,13 +296,13 @@ var figue = function () {
 			Returns null if k > n or if there are less than k distinct objects in vectors */
 		
 		var n = vectors.length ;
-		if ( k > n )
+		if ( k > n ) 
 			return null ;
 		
 		var selected_vectors = new Array(k) ;
 		var selected_indices = new Array(k) ;
 		
-		var tested_indices = {};
+		var tested_indices = new Object ;
 		var tested = 0 ;
 		var selected = 0 ;
 		var i , vector, select ;
@@ -343,7 +326,7 @@ var figue = function () {
 			}
 			if (select) {
 				selected_vectors[selected] = vector ;
-				selected_indices[selected] = random_index ;
+				selected_indices[selected] = random_index ; 
 				selected++ ;
 			}
 		}
@@ -359,7 +342,7 @@ var figue = function () {
 		var centroids = null ;
 		
 		var t = getRandomVectors(k, vectors) ;
-		if (t === null)
+		if (t == null)
 			return null ;
 		else
 			centroids = t.vectors ;
@@ -546,7 +529,6 @@ var figue = function () {
 		EUCLIDIAN_DISTANCE: 0,
 		MANHATTAN_DISTANCE: 1,
 		MAX_DISTANCE: 2,
-		CUSTOM_DISTANCE: 3,
 		PRINT_VECTOR_VALUE_PRECISION: 2,
 		KMEANS_MAX_ITERATIONS: 10,
 		FCMEANS_MAX_ITERATIONS: 3,
