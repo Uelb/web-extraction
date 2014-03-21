@@ -29,4 +29,3 @@ run = ->
   allElements.uniqueId()
   json = createJson(allElements)
   json
-allElements = undefined

@@ -1,3 +1,8 @@
+page = require("webpage").create()
+system = require("system")
+fs = require("fs")
+webserver = require("webserver")
+server = webserver.create()
 quit = (reason, value) ->
   console.log "QUIT: " + reason
   phantom.exit value
@@ -63,9 +68,5 @@ init = ->
       level = 2
     getPageResult system.args[1], level
   return
-page = require("webpage").create()
-system = require("system")
-fs = require("fs")
-webserver = require("webserver")
-server = webserver.create()
+
 init()

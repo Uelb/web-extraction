@@ -1,4 +1,4 @@
-SSQL = {}
+window.SSQL ||= {}
 SSQL.CUSTOM_WEIGHTED_DISTANCE = (vec1, vec2, weights) ->
   d = 0
   N = vec1.length
