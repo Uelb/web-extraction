@@ -3,11 +3,13 @@ system = require("system")
 fs = require("fs")
 webserver = require("webserver")
 server = webserver.create()
+
 quit = (reason, value) ->
   console.log "QUIT: " + reason
   phantom.exit value
   return
-getPageResult = (url, level) ->
+
+getPageResult = (url, level, label) ->
   page.open url, (status) ->
     page.injectJs "lib/launcher.js"
     page.injectJs "vendor/jquery.js"
@@ -22,32 +24,36 @@ getPageResult = (url, level) ->
     data = page.evaluate(->
       run()
     )
-    groups = SSQL.processData(data, level)
     page_url = page.evaluate(->
       loc = window.location
       base = loc.hostname + ((if loc.port then ":" + loc.port else ""))
       path = loc.pathname.split("/").slice(0, -1).join("/")
       base + path
     )
-    result = page.evaluate((groups, page_url) ->
-      Ui.transformRelativeUrls();
-      Ui.addStyle(groups, page_url);
-    , groups, page_url)
-    
-    service = server.listen(8080, (request, response) ->
-      response.statusCode = 200
-      response.write page.content
-      response.close()
-      return
-    )
-    return
+    groups = SSQL.processData(data, level)
 
+    centroid = page.evaluate ->
+      $.ajax
+        url: Ui.api_server_url + 'jsons/' + page_url + '/' + label
+        async: false
+        type: 'GET'
+        succces: (data)->
+          json = data
+      return json
+    element = SSQL.findClosestElement groups, centroid
+    result = page.evaluate (element)->
+      Ui.getTextArray element
+    , element
+    try
+      fs.write('output/trees/' + page_url + '.json', JSON.stringify groups)
+      fs.write('output/jsons/' + page_url + '.json', JSON.stringify result)
+    catch e
+      console.log e
+    return
   return
 
-# page.render('result.png');
-# quit('End of process', 0);
 init = ->
-  if system.args.length is 1
+  if system.args.length < 3
     console.log "Try to pass some args when invoking this script!"
     quit "Not enough argument", 0
   else
@@ -55,11 +61,7 @@ init = ->
     phantom.injectJs "lib/utils.js"
     phantom.injectJs "lib/ssql.js"
     phantom.injectJs "vendor/underscore.js"
-    if system.args.size is 3
-      level = system.args[2]
-    else
-      level = 2
-    getPageResult system.args[1], level
+    getPageResult system.args[1], 2, system.args[2]
   return
 
 init()

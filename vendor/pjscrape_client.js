@@ -51,9 +51,13 @@ window._pjs = (function($) {
      * @param {Boolean} includeOffsite      Whether to include off-site links
      * @return {String[]}                   Array of fully qualified URLs
      */
-    function getAnchorUrls(selector, includeOffsite) {
+    function getAnchorUrls(selector, includeOffsite, opts) {
+        attribute = 'href';
+        if(opts && opts.attribute)
+            attribute = opts.attribute;
+
         return $(selector).map(function() {
-            var href = $(this).attr('href');
+            var href = $(this).attr(attribute);
             return (href && href.indexOf('#') !== 0 && (includeOffsite || isLocalUrl(href))) ? 
                 toFullUrl(href) : undefined;
         }).toArray();

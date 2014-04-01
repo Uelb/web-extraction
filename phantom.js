@@ -40,12 +40,11 @@
         path = loc.pathname.split("/").slice(0, -1).join("/");
         return base + path;
       });
-      result = page.evaluate(function(groups) {
-        addStyle();
-        return getResult(groups);
-      }, groups);
+      result = page.evaluate(function(groups, page_url) {
+        Ui.transformRelativeUrls();
+        return Ui.addStyle(groups, page_url);
+      }, groups, page_url);
       service = server.listen(8080, function(request, response) {
-        request.url = "http://0.0.0.0:8080/totoefe";
         response.statusCode = 200;
         response.write(page.content);
         response.close();

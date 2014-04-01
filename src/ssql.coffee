@@ -1,4 +1,4 @@
-window.SSQL ||= {}
+SSQL = {}
 SSQL.CUSTOM_WEIGHTED_DISTANCE = (vec1, vec2, weights) ->
   d = 0
   N = vec1.length
@@ -85,3 +85,18 @@ SSQL.getVector = (element) ->
     topAlignement
     zIndex
   ]
+
+SSQL.findClosestElement = (groups, centroid) ->
+  distances = []
+  for elements in groups
+    do (elements) -> 
+      distance = SSQL.CUSTOM_DISTANCE elements.centroid, centroid
+      distances[distance]||= []
+      distances[distance].push elements
+  closestElements = distances[Math.min Object.keys(distances)]
+  return closestElements[0] if closestElements.length is 1
+  # To improve...
+  return closestElements[0]
+
+
+window.SSQL = SSQL

@@ -2,7 +2,7 @@ filterUnrelevantElements = (elements) ->
   i = elements.length
   while i--
     element = $(elements[i])
-    elements.splice i, 1  if not (element.text()) and element.prop("tagName").toUpperCase() isnt "IMG" or element.width() is 0 or element.height() is 0
+    elements.splice i, 1  unless element.text() or element.prop("tagName").toUpperCase() is "IMG"
   return
 createJson = (elements) ->
   _.map elements, (element) ->
@@ -17,14 +17,8 @@ createJson = (elements) ->
     position: $element.position()
     zIndex: $element.css("z-index")
 
-printJSON = (object) ->
-  console.log JSON.stringify(object, `undefined`, 2)
-  return
-sendJsonToServer = (json) ->
-  xhr.send "abcdef"
-  return
-run = ->
-  allElements = $("body").find("*:not(:hidden)")
+window.run = ->
+  allElements = $("body").find("*:not(script,style)")
   filterUnrelevantElements allElements
   allElements.uniqueId()
   json = createJson(allElements)
