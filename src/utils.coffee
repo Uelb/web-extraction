@@ -6,4 +6,4 @@ Utils.processColorString = (color) ->
 Utils.checkLengths = (vec1, vec2) ->
   throw "vectors have different lengths"  unless vec1.length is vec2.length
   return
-window.Utils = Utils
+module.exports = Utils

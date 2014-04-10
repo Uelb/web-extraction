@@ -1,67 +1,88 @@
-page = require("webpage").create()
-system = require("system")
-fs = require("fs")
-webserver = require("webserver")
-server = webserver.create()
+phantom = require 'phantom'
+http = require 'http'
+SSQL = require './lib/ssql.js'
+figue = require './vendor/figue.js'
+request = require 'request'
 
-quit = (reason, value) ->
-  console.log "QUIT: " + reason
-  phantom.exit value
-  return
+level = 2
+counter = 0
+quit = (message, resultCode) ->
+  console.log message
+  process.exit resultCode
 
-getPageResult = (url, level, label) ->
-  page.open url, (status) ->
-    page.injectJs "lib/launcher.js"
+
+getPageResult = (page, level, current_website) ->
+  console.log "Processing " + current_website.url
+  page.onConsoleMessage = (msg) -> console.log "page message : " + msg
+
+  page.open current_website.url, ->
+    page.injectJs("lib/launcher.js")
     page.injectJs "vendor/jquery.js"
     page.injectJs "vendor/jquery-ui.custom.min.js"
     page.injectJs "vendor/underscore.js"
     page.injectJs "vendor/pjscrape_client.js"
     page.injectJs "lib/ui.js"
-    page.onConsoleMessage = (msg) ->
-      system.stderr.writeLine "console: " + msg
-      return
+    page.evaluate ->
+      return run()
+    , (data)->
+      processData(data, page, current_website)
 
-    data = page.evaluate(->
-      run()
-    )
-    page_url = page.evaluate(->
-      loc = window.location
-      base = loc.hostname + ((if loc.port then ":" + loc.port else ""))
-      path = loc.pathname.split("/").slice(0, -1).join("/")
-      base + path
-    )
-    groups = SSQL.processData(data, level)
 
-    centroid = page.evaluate ->
-      $.ajax
-        url: Ui.api_server_url + 'jsons/' + page_url + '/' + label
-        async: false
-        type: 'GET'
-        succces: (data)->
-          json = data
-      return json
-    element = SSQL.findClosestElement groups, centroid
-    result = page.evaluate (element)->
-      Ui.getTextArray element
-    , element
-    try
-      fs.write('output/trees/' + page_url + '.json', JSON.stringify groups)
-      fs.write('output/jsons/' + page_url + '.json', JSON.stringify result)
-    catch e
-      console.log e
-    return
-  return
+processData = (data, page, current_website) ->
+  root = SSQL.processData data
+  groups = SSQL.flatten_root root
+  items = []
+  for label in current_website.labels
+    value = label.value
+    console.log "     ===>> Processing " + value
+    elements = []
+    for centroid in label.centroids
+      elements.push SSQL.findClosestElements(groups, createVector(centroid))
+    page.evaluate (elements, label, current_website) ->
+      texts = []
+      elements.forEach (x)->
+        Ui.getTextArray(x).forEach (y) ->
+          texts.push y
+      return [texts, label, current_website]
+    , (arrayAndLabel)-> 
+      sendItemArray(arrayAndLabel[0], arrayAndLabel[1], arrayAndLabel[2])
+    , elements, label, current_website
+  page.close()
+
+createVector = (centroid) ->
+  return [centroid.color, centroid.background_color, centroid.width, centroid.height, centroid.text_decoration, centroid.font_style, centroid.left_alignment, centroid.top_alignment, centroid.z_index]
+
+
+sendItemArray = (array, label, current_website) ->
+  console.log "For label :", label.value
+  console.log "Elements found : ", JSON.stringify(array)
+  body = 
+    label_id: label.id
+    items: array
+  request
+    uri: 'http://0.0.0.0:3000/items'
+    method: 'POST'
+    json: body
+  , -> 
+    console.log "Label " + label.value + " of Website " + current_website.url + " has been processed"
+    counter--
+    quit("All the labels have been processed") if counter is 0
+
 
 init = ->
-  if system.args.length < 3
-    console.log "Try to pass some args when invoking this script!"
-    quit "Not enough argument", 0
-  else
-    phantom.injectJs "vendor/figue.js"
-    phantom.injectJs "lib/utils.js"
-    phantom.injectJs "lib/ssql.js"
-    phantom.injectJs "vendor/underscore.js"
-    getPageResult system.args[1], 2, system.args[2]
-  return
+  request.get 'http://0.0.0.0:3000/websites.json', (error, response, body) ->
+    if error || response.statusCode != 200
+      quit "Cannot find the list of websites, check if the Rails server is on", 1
+    console.log "Fetched the list of websites to update"
+    websites = JSON.parse body
+    for current_website in websites
+      counter += current_website.labels.length
+    phantom.create (ph) ->
+      website_counter = 0
+      for current_website in websites
+        ph.createPage (page) ->
+          website = websites[website_counter++]
+          level = website.level if website.level
+          getPageResult page, level, website
 
 init()

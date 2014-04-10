@@ -1,63 +1,71 @@
-page = require("webpage").create()
-system = require("system")
-fs = require("fs")
-webserver = require("webserver")
-server = webserver.create()
-quit = (reason, value) ->
-  console.log "QUIT: " + reason
-  phantom.exit value
-  return
-getPageResult = (url, level) ->
+#REQUIRES
+phantom = require 'phantom'
+http = require 'http'
+SSQL = require './lib/ssql.js'
+figue = require './vendor/figue.js'
+request = require 'request'
+
+#GLOBAL VARIABLES DEFINITIONS
+level = 2
+
+#METHOD DEFINITONS
+quit = (message, resultCode) ->
+  console.log message
+  process.exit resultCode
+
+getPageResult = (page, url) ->
   page.open url, (status) ->
+    # page.onConsoleMessage = (msg) -> console.log "page message : " + msg
     page.injectJs "lib/launcher.js"
     page.injectJs "vendor/jquery.js"
     page.injectJs "vendor/jquery-ui.custom.min.js"
     page.injectJs "vendor/underscore.js"
     page.injectJs "vendor/pjscrape_client.js"
     page.injectJs "lib/ui.js"
-    page.onConsoleMessage = (msg) ->
-      system.stderr.writeLine "console: " + msg
-      return
-
-    data = page.evaluate(->
-      run()
-    )
-    groups = SSQL.processData(data, level)
-    page_url = page.evaluate(->
-      loc = window.location
-      base = loc.hostname + ((if loc.port then ":" + loc.port else ""))
-      path = loc.pathname.split("/").slice(0, -1).join("/")
-      base + path
-    )
-    result = page.evaluate((groups, page_url) ->
-      Ui.transformRelativeUrls();
-      Ui.addStyle(groups, page_url);
-    , groups, page_url)
-    
-    service = server.listen(8080, (request, response) ->
-      response.statusCode = 200
-      response.write page.content
-      response.close()
-      return
-    )
+    setTimeout ->
+      getPageResultNext page
+    , 1000
     return
-
   return
 
+getPageResultNext = (page)->
+  page.evaluate ()->
+    Ui.transformRelativeUrls()
+    data = run()
+    return data
+  , (data) ->
+    processData(data, page)
+
+processData = (data, page) ->
+  root = SSQL.processData data
+  root = JSON.stringify root
+  page.evaluate (root)->
+    Ui.addStyle root
+    return document.documentElement.outerHTML
+  , sendResult, root
+
+sendResult = (content)->
+  console.log content
+  quit "", 0
+
+
+launchServer = (content)->
+  http.createServer (req, res) ->
+    res.writeHead 200, 'Content-Type': 'text/html'
+    res.end content
+  .listen 8080, '127.0.0.1'
+
+  # console.log 'Server running at http://127.0.0.1:8080/'
+
 init = ->
-  if system.args.length is 1
-    console.log "Try to pass some args when invoking this script!"
+  args = process.argv
+  if args.length is 2
     quit "Not enough argument", 0
   else
-    phantom.injectJs "vendor/figue.js"
-    phantom.injectJs "lib/utils.js"
-    phantom.injectJs "lib/ssql.js"
-    phantom.injectJs "vendor/underscore.js"
-    if system.args.size is 3
-      level = system.args[2]
-    else
-      level = 2
-    getPageResult system.args[1], level
+    url = args[2]
+    phantom.create (ph) ->
+      ph.createPage (page) ->
+        getPageResult(page, url)
   return
 
 init()

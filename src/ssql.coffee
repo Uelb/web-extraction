@@ -1,3 +1,5 @@
+figue = require '../vendor/figue.js'
+Utils = require './utils.js'
 SSQL = {}
 SSQL.CUSTOM_WEIGHTED_DISTANCE = (vec1, vec2, weights) ->
   d = 0
@@ -19,7 +21,7 @@ SSQL.CUSTOM_WEIGHTED_DISTANCE = (vec1, vec2, weights) ->
 SSQL.CUSTOM_DISTANCE = (vec1, vec2) ->
   SSQL.CUSTOM_WEIGHTED_DISTANCE vec1, vec2, [1]
 
-SSQL.processData = (data, level) ->
+SSQL.processData = (data) ->
   labels = []
   vectors = []
   i = 0
@@ -30,17 +32,23 @@ SSQL.processData = (data, level) ->
     vectors[i] = SSQL.getVector(element)
     i++
   root = figue.agglomerate(labels, vectors, SSQL.CUSTOM_DISTANCE, figue.COMPLETE_LINKAGE)
-  result = []
-  SSQL.clusterize root, level, result
-  result
+  return root
 
-SSQL.clusterize = (root, level, result) ->
-  if root.dist <= level and not root.isLeaf()
-    result.push root
-  else unless root.isLeaf()
-    SSQL.clusterize root.left, level, result
-    SSQL.clusterize root.right, level, result
-  return
+SSQL.getWeightVector = (weights) ->
+  result = [
+    weights.color
+    weights.bgColor
+    weights.width
+    weights.height
+    weights.textDecoration
+    weights.fontStyle
+    weights.leftAlignment
+    weights.topAlignement
+    weights.zIndex
+  ]
+  for weight in result
+    weight = 1 unless weight
+  return result
 
 SSQL.getVector = (element) ->
   color = Utils.processColorString(element.color)
@@ -86,17 +94,23 @@ SSQL.getVector = (element) ->
     zIndex
   ]
 
-SSQL.findClosestElement = (groups, centroid) ->
+SSQL.findClosestElements = (groups, centroid) ->
   distances = []
   for elements in groups
     do (elements) -> 
       distance = SSQL.CUSTOM_DISTANCE elements.centroid, centroid
       distances[distance]||= []
       distances[distance].push elements
-  closestElements = distances[Math.min Object.keys(distances)]
+  closestElements = distances[Math.min.apply(Math, Object.keys(distances))]
   return closestElements[0] if closestElements.length is 1
   # To improve...
   return closestElements[0]
 
+SSQL.flatten_root = (root) ->
+  groups = []
+  groups.push root
+  groups.push.apply groups, SSQL.flatten_root root.left unless root.left is null
+  groups.push.apply groups, SSQL.flatten_root root.right unless root.right is null
+  return groups
 
-window.SSQL = SSQL
+module.exports = SSQL

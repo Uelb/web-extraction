@@ -1,49 +1,26 @@
 Ui = 
   api_server_url: "http://0.0.0.0:3000/"
   result:
-    centroids: {}
+    labels: {}
     url: ""
 
-Ui.addStyle = (groups, url)->
-  $("head").append "<link rel=\"stylesheet\" href=\"//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css\">"
-  $("head").append "<link href=\"" + Ui.api_server_url + "assets/ssql_ui/main.css\" rel=\"stylesheet\" type=\"text/css\">"
-  $("head").append "<script src=\"http://code.jquery.com/jquery-1.11.0.min.js\"></script>"
-  $("head").append "<script src=\"//code.jquery.com/ui/1.10.4/jquery-ui.js\"></script>"
-  $("head").append "<script src=\"" + Ui.api_server_url + "assets/ssql_ui/ui.js\"></script>"
-  $("head").append "<script src=\"//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js\"></script>"
-  $("head").append "<script>window.groups = " + JSON.stringify(groups) + ";</script>" if groups
-  $("head").append "<script>$(Ui.init)</script>" if groups
-  $("head").append "<style type=\"text/css\" class=\"colors\"></style>"
-  $("head").append "<meta name=\"site_url\" content=\"" + url + "\">"
-  $("body").append "
-    <div id=\"dialog-form\" title=\"Label a field\">
-      <form>
-        <fieldset>
-          <label for=\"label\">Field label</label>
-          <input type=\"text\" name=\"label\" id=\"dialog-label\" class=\"text ui-widget-content ui-corner-all\">
-        </fieldset>
-      </form>
-    </div>"
+Ui.addStyle = (root)->
+  $("head").append "<script>window.root = " + JSON.stringify(root) + ";</script>" if root
   return
 
 Ui.bindGroups = (groups) ->
   _.each groups, Ui.bind
   return
 
-Ui.setDialog = ->
-  $("#dialog-form").dialog 
-    autoOpen: false
-    modal: true
-    buttons:
-      "Create a label": ->
-        label_value = $("#dialog-label").val()
-        centroid = groups[Ui.current_centroid_index]
-        Ui.result.centroids[label_value] = centroid
-        $(this).dialog "close"
-      Cancel: ->
-        $(this).dialog "close"
-    close: ->
-      $("#dialog-label").val ""
+Ui.unbindGroups = (groups) ->
+  $("[centroid]").removeAttr "centroid"
+  _.each groups, Ui.unbind
+
+Ui.unbind = (elements) ->
+  ids = Ui.getIdSelector(elements)
+  $(ids).unbind 'mouseover'
+  $(ids).unbind 'mouseout'
+  $(ids).unbind 'click'
 
 Ui.bind = (elements, index) ->
   ids = Ui.getIdSelector(elements)
@@ -59,8 +36,22 @@ Ui.bind = (elements, index) ->
   $(ids).click ->
     event.stopPropagation()
     event.preventDefault()
-    Ui.current_centroid_index = $(this).attr "centroid"
-    $("#dialog-form").dialog "open"
+    if $(".selected_highlight").size() isnt 0
+      old_centroid_index = $(".selected_highlight").attr "centroid"
+      new_centroid_index = $(this).attr "centroid"
+      if old_centroid_index != new_centroid_index
+        old_centroid = groups[old_centroid_index]
+        new_centroid = groups[new_centroid_index]
+        if $(".extraction-center .selected").hasClass "cross"
+          centroid = Ui.findCommonAncestor root, old_centroid, new_centroid
+          $(".selected_highlight").removeClass "selected_highlight"
+          Ui.highlight $(Ui.getIdSelector(centroid)), "selected_highlight"
+          return
+
+    if $(this).hasClass "selected_highlight"
+      Ui.resetHighlight $(ids), "selected_highlight"
+    else
+      Ui.highlight $(ids), "selected_highlight"
 
   return
 
@@ -76,7 +67,7 @@ Ui.displayResult = (groups) ->
   _.each groups, putColor
   return
 Ui.putColor = (elements) ->
-  ids = getIdSelector(elements)
+  ids = Ui.getIdSelector(elements)
   color = getRandomColor()
   $(ids).css "background-color", color
   return
@@ -87,8 +78,8 @@ Ui.getIdSelector = (element) ->
     "#" + element.label
   else
     Ui.getIdSelector(element.left) + "," + Ui.getIdSelector(element.right)
-getTextArray = (elements) ->
-  ids = getIdSelector(elements)
+Ui.getTextArray = (elements) ->
+  ids = Ui.getIdSelector(elements)
   _.map $(ids), getText
 
 Ui.getResult = (groups) ->
@@ -105,8 +96,6 @@ Ui.getRandomColor = ->
 
 Ui.init = () ->
   Ui.bindGroups window.groups if window.groups
-  Ui.setDialog()
-  Ui.result.url = $("meta[name='site_url']").attr("content")
 
 Ui.transformRelativeUrls = ->
   if _pjs
@@ -120,7 +109,27 @@ Ui.transformRelativeUrls = ->
     throw 'Not supported, the pjs library is not accessible'
 
 Ui.save = () ->
+  Ui.result.url = $("meta[name='url']").attr("content")
   $.post Ui.api_server_url + "centroids", Ui.result, (data)->
     console.log data
     console.log 'Vos données sont maintenant accessibles ! L\'identifiant de la nouvelle configuration est '
+
+Ui.clusterize = (root, level, result) ->
+  if root.dist <= level and not (this.left == null && this.right == null)
+    result.push root
+  else unless (this.left == null && this.right == null)
+    Ui.clusterize root.left, level, result
+    Ui.clusterize root.right, level, result
+  return
+
+Ui.findCommonAncestor = (root,a,b) ->
+  return null unless root
+  return root if a == root or b == root
+  leftCommonAncestor = Ui.findCommonAncestor root.left, a, b
+  rightCommonAncestor = Ui.findCommonAncestor root.right, a, b
+  return root if leftCommonAncestor && rightCommonAncestor
+  return leftCommonAncestor if leftCommonAncestor
+  return rightCommonAncestor
+
+
 window.Ui = Ui

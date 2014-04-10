@@ -1,71 +1,83 @@
-var fs, getPageResult, init, page, quit, server, system, webserver;
+var SSQL, figue, getPageResult, getPageResultNext, http, init, launchServer, level, phantom, processData, quit, request, sendResult;
 
-page = require("webpage").create();
+phantom = require('phantom');
 
-system = require("system");
+http = require('http');
 
-fs = require("fs");
+SSQL = require('./lib/ssql.js');
 
-webserver = require("webserver");
+figue = require('./vendor/figue.js');
 
-server = webserver.create();
+request = require('request');
 
-quit = function(reason, value) {
-  console.log("QUIT: " + reason);
-  phantom.exit(value);
+level = 2;
+
+quit = function(message, resultCode) {
+  console.log(message);
+  return process.exit(resultCode);
 };
 
-getPageResult = function(url, level) {
+getPageResult = function(page, url) {
   page.open(url, function(status) {
-    var data, groups, page_url, result, service;
     page.injectJs("lib/launcher.js");
     page.injectJs("vendor/jquery.js");
     page.injectJs("vendor/jquery-ui.custom.min.js");
     page.injectJs("vendor/underscore.js");
     page.injectJs("vendor/pjscrape_client.js");
     page.injectJs("lib/ui.js");
-    page.onConsoleMessage = function(msg) {
-      system.stderr.writeLine("console: " + msg);
-    };
-    data = page.evaluate(function() {
-      return run();
-    });
-    groups = SSQL.processData(data, level);
-    page_url = page.evaluate(function() {
-      var base, loc, path;
-      loc = window.location;
-      base = loc.hostname + (loc.port ? ":" + loc.port : "");
-      path = loc.pathname.split("/").slice(0, -1).join("/");
-      return base + path;
-    });
-    result = page.evaluate(function(groups, page_url) {
-      Ui.transformRelativeUrls();
-      return Ui.addStyle(groups, page_url);
-    }, groups, page_url);
-    service = server.listen(8080, function(request, response) {
-      response.statusCode = 200;
-      response.write(page.content);
-      response.close();
-    });
+    setTimeout(function() {
+      return getPageResultNext(page);
+    }, 1000);
   });
 };
 
+getPageResultNext = function(page) {
+  return page.evaluate(function() {
+    var data;
+    Ui.transformRelativeUrls();
+    data = run();
+    return data;
+  }, function(data) {
+    return processData(data, page);
+  });
+};
+
+processData = function(data, page) {
+  var root;
+  root = SSQL.processData(data);
+  root = JSON.stringify(root);
+  return page.evaluate(function(root) {
+    Ui.addStyle(root);
+    return document.documentElement.outerHTML;
+  }, sendResult, root);
+};
+
+sendResult = function(content) {
+  console.log(content);
+  return quit("", 0);
+};
+
+launchServer = function(content) {
+  return http.createServer(function(req, res) {
+    res.writeHead(200, {
+      'Content-Type': 'text/html'
+    });
+    return res.end(content);
+  }).listen(8080, '127.0.0.1');
+};
+
 init = function() {
-  var level;
-  if (system.args.length === 1) {
-    console.log("Try to pass some args when invoking this script!");
+  var args, url;
+  args = process.argv;
+  if (args.length === 2) {
     quit("Not enough argument", 0);
   } else {
-    phantom.injectJs("vendor/figue.js");
-    phantom.injectJs("lib/utils.js");
-    phantom.injectJs("lib/ssql.js");
-    phantom.injectJs("vendor/underscore.js");
-    if (system.args.size === 3) {
-      level = system.args[2];
-    } else {
-      level = 2;
-    }
-    getPageResult(system.args[1], level);
+    url = args[2];
+    phantom.create(function(ph) {
+      return ph.createPage(function(page) {
+        return getPageResult(page, url);
+      });
+    });
   }
 };
 
