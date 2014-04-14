@@ -84,7 +84,7 @@ sendItemArray = function(array, label, current_website) {
     items: array
   };
   return request({
-    uri: 'http://0.0.0.0:3000/items',
+    uri: 'http://www.toobrok.com/items',
     method: 'POST',
     json: body
   }, function() {
@@ -97,7 +97,7 @@ sendItemArray = function(array, label, current_website) {
 };
 
 init = function() {
-  return request.get('http://0.0.0.0:3000/websites.json', function(error, response, body) {
+  return request.get('http://www.toobrok.com/websites.json', function(error, response, body) {
     var current_website, websites, _i, _len;
     if (error || response.statusCode !== 200) {
       quit("Cannot find the list of websites, check if the Rails server is on", 1);

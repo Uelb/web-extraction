@@ -51,15 +51,6 @@ sendResult = (content)->
   console.old_log content
   quit "", 0
 
-
-launchServer = (content)->
-  http.createServer (req, res) ->
-    res.writeHead 200, 'Content-Type': 'text/html'
-    res.end content
-  .listen 8080, '127.0.0.1'
-
-  # console.log 'Server running at http://127.0.0.1:8080/'
-
 init = ->
   args = process.argv
   if args.length is 2

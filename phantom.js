@@ -1,4 +1,4 @@
-var SSQL, figue, getPageResult, getPageResultNext, http, init, launchServer, level, phantom, processData, quit, request, sendResult;
+var SSQL, figue, getPageResult, getPageResultNext, http, init, level, phantom, processData, quit, request, sendResult;
 
 phantom = require('phantom');
 
@@ -59,15 +59,6 @@ processData = function(data, page) {
 sendResult = function(content) {
   console.old_log(content);
   return quit("", 0);
-};
-
-launchServer = function(content) {
-  return http.createServer(function(req, res) {
-    res.writeHead(200, {
-      'Content-Type': 'text/html'
-    });
-    return res.end(content);
-  }).listen(8080, '127.0.0.1');
 };
 
 init = function() {

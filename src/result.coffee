@@ -60,7 +60,7 @@ sendItemArray = (array, label, current_website) ->
     label_id: label.id
     items: array
   request
-    uri: 'http://0.0.0.0:3000/items'
+    uri: 'http://www.toobrok.com/items'
     method: 'POST'
     json: body
   , -> 
@@ -70,7 +70,7 @@ sendItemArray = (array, label, current_website) ->
 
 
 init = ->
-  request.get 'http://0.0.0.0:3000/websites.json', (error, response, body) ->
+  request.get 'http://www.toobrok.com/websites.json', (error, response, body) ->
     if error || response.statusCode != 200
       quit "Cannot find the list of websites, check if the Rails server is on", 1
     console.log "Fetched the list of websites to update"
