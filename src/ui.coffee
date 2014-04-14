@@ -111,9 +111,7 @@ Ui.transformRelativeUrls = ->
 Ui.save = () ->
   Ui.result.url = $("meta[name='url']").attr("content")
   $.post Ui.api_server_url + "centroids", Ui.result, (data)->
-    console.log data
-    console.log 'Vos données sont maintenant accessibles ! L\'identifiant de la nouvelle configuration est '
-
+    window.location.href = '/websites'
 Ui.clusterize = (root, level, result) ->
   if root.dist <= level and not (this.left == null && this.right == null)
     result.push root

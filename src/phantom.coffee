@@ -8,6 +8,9 @@ request = require 'request'
 #GLOBAL VARIABLES DEFINITIONS
 level = 2
 
+console.old_log = console.log
+console.log = ->
+
 #METHOD DEFINITONS
 quit = (message, resultCode) ->
   console.log message
@@ -45,7 +48,7 @@ processData = (data, page) ->
   , sendResult, root
 
 sendResult = (content)->
-  console.log content
+  console.old_log content
   quit "", 0
 
 

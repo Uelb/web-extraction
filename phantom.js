@@ -12,6 +12,10 @@ request = require('request');
 
 level = 2;
 
+console.old_log = console.log;
+
+console.log = function() {};
+
 quit = function(message, resultCode) {
   console.log(message);
   return process.exit(resultCode);
@@ -53,7 +57,7 @@ processData = function(data, page) {
 };
 
 sendResult = function(content) {
-  console.log(content);
+  console.old_log(content);
   return quit("", 0);
 };
 
