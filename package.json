@@ -6,9 +6,10 @@
     "grunt-contrib-watch": "^0.5.3",
     "grunt-contrib-uglify": "^0.4.0",
     "grunt-contrib-coffee": "^0.10.1",
-    "request": "^2.34.0"
-  },
-  "scripts": {
-    "install": "npm install -g grunt-cli && npm install -g bower"
+    "request": "^2.34.0",
+    "jquery": "^2.1.0",
+    "phantom": "^0.5.7",
+    "request": "^2.34.0",
+    "underscore": "^1.6.0"
   }
 }
