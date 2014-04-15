@@ -1,5 +1,5 @@
 Ui = 
-  api_server_url: "http://0.0.0.0:3000/"
+  api_server_url: "http://toobrok.com/"
   result:
     labels: {}
     url: ""
