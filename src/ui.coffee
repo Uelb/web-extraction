@@ -29,10 +29,10 @@ Ui.bind = (elements, index) ->
   $(ids).attr("centroid", index)
   $(ids).mouseover (event) ->
     event.stopPropagation()
-    Ui.highlight $(ids), className
+    Ui.highlight $(ids), className, "image_highlight"
   $(ids).mouseout (event) ->
     event.stopPropagation()
-    Ui.resetHighlight $(ids), className
+    Ui.resetHighlight $(ids), className, "image_highlight"
   $(ids).click ->
     event.stopPropagation()
     event.preventDefault()
@@ -49,18 +49,20 @@ Ui.bind = (elements, index) ->
           return
 
     if $(this).hasClass "selected_highlight"
-      Ui.resetHighlight $(ids), "selected_highlight"
+      Ui.resetHighlight $(ids), "selected_highlight", "selected_highlight_image"
     else
-      Ui.highlight $(ids), "selected_highlight"
+      Ui.highlight $(ids), "selected_highlight", "selected_highlight_image"
 
   return
 
-Ui.highlight = (elements, className="highlight")->
-  $(elements).addClass className, 300
+Ui.highlight = (elements, className="highlight", imageClass="image_highlight")->
+  $(elements).filter(":not(img)").addClass className, 300
+  $(elements).filter("img").addClass imageClass, 300
   return
 
-Ui.resetHighlight= (elements, className="highlight")->
-  $(elements).removeClass className, 100
+Ui.resetHighlight= (elements, className="highlight", imageClass="image_highlight")->
+  $(elements).filter(":not(img)").removeClass className, 100
+  $(elements).filter("img").removeClass imageClass, 100
   return
 
 Ui.displayResult = (groups) ->
@@ -72,7 +74,10 @@ Ui.putColor = (elements) ->
   $(ids).css "background-color", color
   return
 getText = (element) ->
-  $(element).text()
+  if $(element).is("img")
+    return $(element).att("src")
+  else
+    return $(element).text()
 Ui.getIdSelector = (element) ->
   if element.left is null and element.right is null
     "#" + element.label
