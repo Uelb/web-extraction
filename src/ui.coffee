@@ -3,6 +3,7 @@ Ui =
   result:
     labels: {}
     url: ""
+    weights: {}
 
 Ui.addStyle = (root)->
   $("head").append "<script>window.root = " + JSON.stringify(root) + ";</script>" if root
@@ -75,7 +76,7 @@ Ui.putColor = (elements) ->
   return
 getText = (element) ->
   if $(element).is("img")
-    return $(element).att("src")
+    return $(element).attr("src")
   else
     return $(element).text()
 Ui.getIdSelector = (element) ->
@@ -115,6 +116,7 @@ Ui.transformRelativeUrls = ->
 
 Ui.save = () ->
   Ui.result.url = $("meta[name='url']").attr("content")
+  Ui.result.weights = window.weights
   if Ui.result.labels is {}
     alert('You have not chosen any labels to save...')
   else

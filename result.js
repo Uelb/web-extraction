@@ -97,7 +97,8 @@ sendItemArray = function(array, label, current_website) {
 };
 
 init = function() {
-  return request.get('http://www.toobrok.com/websites.json', function(error, response, body) {
+  console.log("Connectiong to server : " + process.env.TOOBROK_SERVER_URL);
+  return request.get(process.env.TOOBROK_SERVER_URL + '/websites.json', function(error, response, body) {
     var current_website, websites, _i, _len;
     if (error || response.statusCode !== 200) {
       quit("Cannot find the list of websites, check if the Rails server is on", 1);
