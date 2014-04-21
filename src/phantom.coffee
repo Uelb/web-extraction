@@ -16,7 +16,7 @@ quit = (message, resultCode) ->
   console.log message
   process.exit resultCode
 
-getPageResult = (page, url) ->
+getPageResult = (page, url, weights) ->
   page.open url, (status) ->
     # page.onConsoleMessage = (msg) -> console.log "page message : " + msg
     page.injectJs "lib/launcher.js"
@@ -26,21 +26,21 @@ getPageResult = (page, url) ->
     page.injectJs "vendor/pjscrape_client.js"
     page.injectJs "lib/ui.js"
     setTimeout ->
-      getPageResultNext page
+      getPageResultNext page, weights
     , 1000
     return
   return
 
-getPageResultNext = (page)->
+getPageResultNext = (page, weights)->
   page.evaluate ()->
     Ui.transformRelativeUrls()
     data = run()
     return data
   , (data) ->
-    processData(data, page)
+    processData(data, page, weights)
 
-processData = (data, page) ->
-  root = SSQL.processData data
+processData = (data, page, weights) ->
+  root = SSQL.processData data, JSON.parse(weights)
   root = JSON.stringify root
   page.evaluate (root)->
     Ui.addStyle root
@@ -55,11 +55,13 @@ init = ->
   args = process.argv
   if args.length is 2
     quit "Not enough argument", 0
-  else
+  if args.length > 2
     url = args[2]
-    phantom.create (ph) ->
-      ph.createPage (page) ->
-        getPageResult(page, url)
+  if args.length > 3
+    weights = args[3]    
+  phantom.create (ph) ->
+    ph.createPage (page) ->
+      getPageResult(page, url, weights)
   return
 
 init()

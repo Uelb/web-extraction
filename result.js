@@ -84,7 +84,7 @@ sendItemArray = function(array, label, current_website) {
     items: array
   };
   return request({
-    uri: 'http://www.toobrok.com/items',
+    uri: process.env.TOOBROK_SERVER_URL + '/items',
     method: 'POST',
     json: body
   }, function() {

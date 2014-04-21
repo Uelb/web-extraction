@@ -21,7 +21,7 @@ quit = function(message, resultCode) {
   return process.exit(resultCode);
 };
 
-getPageResult = function(page, url) {
+getPageResult = function(page, url, weights) {
   page.open(url, function(status) {
     page.injectJs("lib/launcher.js");
     page.injectJs("vendor/jquery.js");
@@ -30,25 +30,25 @@ getPageResult = function(page, url) {
     page.injectJs("vendor/pjscrape_client.js");
     page.injectJs("lib/ui.js");
     setTimeout(function() {
-      return getPageResultNext(page);
+      return getPageResultNext(page, weights);
     }, 1000);
   });
 };
 
-getPageResultNext = function(page) {
+getPageResultNext = function(page, weights) {
   return page.evaluate(function() {
     var data;
     Ui.transformRelativeUrls();
     data = run();
     return data;
   }, function(data) {
-    return processData(data, page);
+    return processData(data, page, weights);
   });
 };
 
-processData = function(data, page) {
+processData = function(data, page, weights) {
   var root;
-  root = SSQL.processData(data);
+  root = SSQL.processData(data, JSON.parse(weights));
   root = JSON.stringify(root);
   return page.evaluate(function(root) {
     Ui.addStyle(root);
@@ -62,18 +62,22 @@ sendResult = function(content) {
 };
 
 init = function() {
-  var args, url;
+  var args, url, weights;
   args = process.argv;
   if (args.length === 2) {
     quit("Not enough argument", 0);
-  } else {
-    url = args[2];
-    phantom.create(function(ph) {
-      return ph.createPage(function(page) {
-        return getPageResult(page, url);
-      });
-    });
   }
+  if (args.length > 2) {
+    url = args[2];
+  }
+  if (args.length > 3) {
+    weights = args[3];
+  }
+  phantom.create(function(ph) {
+    return ph.createPage(function(page) {
+      return getPageResult(page, url, weights);
+    });
+  });
 };
 
 init();

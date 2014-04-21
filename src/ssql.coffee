@@ -21,7 +21,12 @@ SSQL.CUSTOM_WEIGHTED_DISTANCE = (vec1, vec2, weights) ->
 SSQL.CUSTOM_DISTANCE = (vec1, vec2) ->
   SSQL.CUSTOM_WEIGHTED_DISTANCE vec1, vec2, [1]
 
-SSQL.processData = (data) ->
+SSQL.processData = (data, weights=null) ->
+  if weights
+    to_use_distance = (vec1, vec2)->
+      SSQL.CUSTOM_WEIGHTED_DISTANCE(vec1,vec2,weights)
+  else
+    to_use_distance = SSQL.CUSTOM_DISTANCE
   labels = []
   vectors = []
   i = 0
@@ -31,7 +36,7 @@ SSQL.processData = (data) ->
     labels[i] = element.id
     vectors[i] = SSQL.getVector(element)
     i++
-  root = figue.agglomerate(labels, vectors, SSQL.CUSTOM_DISTANCE, figue.COMPLETE_LINKAGE)
+  root = figue.agglomerate(labels, vectors, to_use_distance, figue.COMPLETE_LINKAGE)
   return root
 
 SSQL.getWeightVector = (weights) ->

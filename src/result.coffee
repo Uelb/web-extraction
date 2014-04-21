@@ -60,7 +60,7 @@ sendItemArray = (array, label, current_website) ->
     label_id: label.id
     items: array
   request
-    uri: 'http://www.toobrok.com/items'
+    uri: process.env.TOOBROK_SERVER_URL + '/items'
     method: 'POST'
     json: body
   , -> 

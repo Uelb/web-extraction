@@ -110,8 +110,11 @@ Ui.transformRelativeUrls = ->
 
 Ui.save = () ->
   Ui.result.url = $("meta[name='url']").attr("content")
-  $.post Ui.api_server_url + "centroids", Ui.result, (data)->
-    window.location.href = '/websites'
+  if Ui.result.labels is {}
+    alert('You have not chosen any labels to save...')
+  else
+    $.post window.location.origin + "/centroids", Ui.result, (data)->
+      window.location.href = '/websites'
 Ui.clusterize = (root, level, result) ->
   if root.dist <= level and not (this.left == null && this.right == null)
     result.push root
