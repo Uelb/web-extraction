@@ -25,16 +25,14 @@ Ui.unbind = (elements) ->
 
 Ui.bind = (elements, index) ->
   ids = Ui.getIdSelector(elements)
-  # className = "color_" + Math.floor((Math.random()*4)+1)
-  className = "highlight"
   $(ids).attr("centroid", index)
   $(ids).mouseover (event) ->
     event.stopPropagation()
-    Ui.highlight $(ids), className, "image_highlight"
+    Ui.highlight $(ids)
   $(ids).mouseout (event) ->
     event.stopPropagation()
-    Ui.resetHighlight $(ids), className, "image_highlight"
-  $(ids).click ->
+    Ui.resetHighlight $(ids)
+  $(ids).click (event) ->
     event.stopPropagation()
     event.preventDefault()
     if $(".selected_highlight").size() isnt 0
@@ -45,11 +43,11 @@ Ui.bind = (elements, index) ->
         new_centroid = groups[new_centroid_index]
         if $(".extraction-center .selected").hasClass "cross"
           centroid = Ui.findCommonAncestor root, old_centroid, new_centroid
-          $(".selected_highlight").removeClass "selected_highlight"
+          Ui.resetSelectedHiglights()
           Ui.highlight $(Ui.getIdSelector(centroid)), "selected_highlight"
           return
 
-    if $(this).hasClass "selected_highlight"
+    if $(this).hasClass "selected_highlight" || $(this).hasClass "selected_highlight_image"
       Ui.resetHighlight $(ids), "selected_highlight", "selected_highlight_image"
     else
       Ui.highlight $(ids), "selected_highlight", "selected_highlight_image"
@@ -139,5 +137,8 @@ Ui.findCommonAncestor = (root,a,b) ->
   return leftCommonAncestor if leftCommonAncestor
   return rightCommonAncestor
 
+Ui.resetSelectedHiglights = ()->
+  $(".selected_highlight").removeClass "selected_highlight"
+  $(".selected_highlight_image").removeClass "selected_highlight_image"
 
 window.Ui = Ui
