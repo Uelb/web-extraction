@@ -74,7 +74,7 @@ Ui.putColor = (elements) ->
   return
 getText = (element) ->
   if $(element).is("img")
-    return $(element).attr("src")
+    return "image:::" + $(element).attr("src")
   else
     return $(element).text()
 Ui.getIdSelector = (element) ->
