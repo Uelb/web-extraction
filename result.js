@@ -55,8 +55,9 @@ processData = function(data, page, current_website) {
       centroid = _ref1[_j];
       elements.push(SSQL.findClosestElements(groups, createVector(centroid)));
     }
-    page.evaluate(function(elements, label, current_website) {
+    page.evaluate(function(elements, label, current_website, groups) {
       var texts;
+      window.groups = groups;
       texts = [];
       elements.forEach(function(x) {
         return Ui.getTextArray(x).forEach(function(y) {
@@ -66,7 +67,7 @@ processData = function(data, page, current_website) {
       return [texts, label, current_website];
     }, function(arrayAndLabel) {
       return sendItemArray(arrayAndLabel[0], arrayAndLabel[1], arrayAndLabel[2]);
-    }, elements, label, current_website);
+    }, elements, label, current_website, groups);
   }
   return page.close();
 };

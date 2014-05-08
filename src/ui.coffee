@@ -72,11 +72,12 @@ Ui.putColor = (elements) ->
   color = getRandomColor()
   $(ids).css "background-color", color
   return
-getText = (element) ->
+getTextAndCentroid = (element) ->
+  centroid = groups[$(element).attr("centroid")]
   if $(element).is("img")
-    return "image:::" + $(element).attr("src")
+    return {value: "image:::" + $(element).attr("src"), centroid: centroid}
   else
-    return $(element).text()
+    return {value: $(element).text(), centroid: centroid}
 Ui.getIdSelector = (element) ->
   if element.left is null and element.right is null
     "#" + element.label
@@ -84,7 +85,7 @@ Ui.getIdSelector = (element) ->
     Ui.getIdSelector(element.left) + "," + Ui.getIdSelector(element.right)
 Ui.getTextArray = (elements) ->
   ids = Ui.getIdSelector(elements)
-  _.map $(ids), getText
+  _.map $(ids), getTextAndCentroid
 
 Ui.getResult = (groups) ->
   _.map groups, getTextArray

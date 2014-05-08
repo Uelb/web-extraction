@@ -38,7 +38,8 @@ processData = (data, page, current_website) ->
     elements = []
     for centroid in label.centroids
       elements.push SSQL.findClosestElements(groups, createVector(centroid))
-    page.evaluate (elements, label, current_website) ->
+    page.evaluate (elements, label, current_website, groups) ->
+      window.groups = groups
       texts = []
       elements.forEach (x)->
         Ui.getTextArray(x).forEach (y) ->
@@ -46,7 +47,7 @@ processData = (data, page, current_website) ->
       return [texts, label, current_website]
     , (arrayAndLabel)-> 
       sendItemArray(arrayAndLabel[0], arrayAndLabel[1], arrayAndLabel[2])
-    , elements, label, current_website
+    , elements, label, current_website, groups
   page.close()
 
 createVector = (centroid) ->
