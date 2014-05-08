@@ -25,12 +25,12 @@ getPageResult = function(page, level, current_website) {
     return console.log("page message : " + msg);
   };
   return page.open(current_website.url, function() {
-    page.injectJs("lib/launcher.js");
     page.injectJs("vendor/jquery.js");
     page.injectJs("vendor/jquery-ui.custom.min.js");
     page.injectJs("vendor/underscore.js");
     page.injectJs("vendor/pjscrape_client.js");
     page.injectJs("lib/ui.js");
+    page.injectJs("lib/launcher.js");
     return page.evaluate(function() {
       return run();
     }, function(data) {
@@ -121,7 +121,11 @@ init = function() {
           if (website.level) {
             level = website.level;
           }
-          return getPageResult(page, level, website);
+          try {
+            return getPageResult(page, level, website);
+          } catch (_error) {
+            return console.log("The website " + current_website + " could not be processed...");
+          }
         }));
       }
       return _results;

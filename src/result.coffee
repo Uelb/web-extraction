@@ -16,12 +16,12 @@ getPageResult = (page, level, current_website) ->
   page.onConsoleMessage = (msg) -> console.log "page message : " + msg
 
   page.open current_website.url, ->
-    page.injectJs("lib/launcher.js")
     page.injectJs "vendor/jquery.js"
     page.injectJs "vendor/jquery-ui.custom.min.js"
     page.injectJs "vendor/underscore.js"
     page.injectJs "vendor/pjscrape_client.js"
     page.injectJs "lib/ui.js"
+    page.injectJs("lib/launcher.js")
     page.evaluate ->
       return run()
     , (data)->
@@ -84,6 +84,9 @@ init = ->
         ph.createPage (page) ->
           website = websites[website_counter++]
           level = website.level if website.level
-          getPageResult page, level, website
+          try
+            getPageResult page, level, website
+          catch
+            console.log "The website " + current_website + " could not be processed..."
 
 init()
