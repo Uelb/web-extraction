@@ -10,22 +10,23 @@ quit = (message, resultCode) ->
   console.log message
   process.exit resultCode
 
-
 getPageResult = (page, level, current_website) ->
   console.log "Processing " + current_website.url
   page.onConsoleMessage = (msg) -> console.log "page message : " + msg
 
   page.open current_website.url, ->
-    page.injectJs "vendor/jquery.js"
-    page.injectJs "vendor/jquery-ui.custom.min.js"
-    page.injectJs "vendor/underscore.js"
-    page.injectJs "vendor/pjscrape_client.js"
-    page.injectJs "lib/ui.js"
-    page.injectJs("lib/launcher.js")
-    page.evaluate ->
-      return run()
-    , (data)->
-      processData(data, page, current_website)
+    setTimeout ->
+      page.injectJs("vendor/jquery.js")
+      page.injectJs("vendor/jquery-ui.custom.min.js")
+      page.injectJs("vendor/underscore.js")
+      page.injectJs("vendor/pjscrape_client.js")
+      page.injectJs("lib/ui.js")
+      page.injectJs("lib/launcher.js")
+      page.evaluate ->
+        return run()
+      , (data)->
+        processData(data, page, current_website)
+    , 5000
 
 
 processData = (data, page, current_website) ->
@@ -39,11 +40,11 @@ processData = (data, page, current_website) ->
     for centroid in label.centroids
       elements.push SSQL.findClosestElements(groups, createVector(centroid))
     page.evaluate (elements, label, current_website) ->
-      texts = []
+      items = []
       elements.forEach (x)->
-        Ui.getTextArray(x).forEach (y) ->
-          texts.push y
-      return [texts, label, current_website]
+        Ui.getItemArray(x).forEach (y) ->
+          items.push y
+      return [items, label, current_website]
     , (arrayAndLabel)-> 
       sendItemArray(arrayAndLabel[0], arrayAndLabel[1], arrayAndLabel[2])
     , elements, label, current_website

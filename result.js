@@ -25,17 +25,19 @@ getPageResult = function(page, level, current_website) {
     return console.log("page message : " + msg);
   };
   return page.open(current_website.url, function() {
-    page.injectJs("vendor/jquery.js");
-    page.injectJs("vendor/jquery-ui.custom.min.js");
-    page.injectJs("vendor/underscore.js");
-    page.injectJs("vendor/pjscrape_client.js");
-    page.injectJs("lib/ui.js");
-    page.injectJs("lib/launcher.js");
-    return page.evaluate(function() {
-      return run();
-    }, function(data) {
-      return processData(data, page, current_website);
-    });
+    return setTimeout(function() {
+      page.injectJs("vendor/jquery.js");
+      page.injectJs("vendor/jquery-ui.custom.min.js");
+      page.injectJs("vendor/underscore.js");
+      page.injectJs("vendor/pjscrape_client.js");
+      page.injectJs("lib/ui.js");
+      page.injectJs("lib/launcher.js");
+      return page.evaluate(function() {
+        return run();
+      }, function(data) {
+        return processData(data, page, current_website);
+      });
+    }, 5000);
   });
 };
 
@@ -56,14 +58,13 @@ processData = function(data, page, current_website) {
       elements.push(SSQL.findClosestElements(groups, createVector(centroid)));
     }
     page.evaluate(function(elements, label, current_website) {
-      var texts;
-      texts = [];
+      items = [];
       elements.forEach(function(x) {
-        return Ui.getTextArray(x).forEach(function(y) {
-          return texts.push(y);
+        return Ui.getItemArray(x).forEach(function(y) {
+          return items.push(y);
         });
       });
-      return [texts, label, current_website];
+      return [items, label, current_website];
     }, function(arrayAndLabel) {
       return sendItemArray(arrayAndLabel[0], arrayAndLabel[1], arrayAndLabel[2]);
     }, elements, label, current_website);

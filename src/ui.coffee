@@ -72,19 +72,29 @@ Ui.putColor = (elements) ->
   color = getRandomColor()
   $(ids).css "background-color", color
   return
-getText = (element) ->
+getItem = (element) ->
+  item =
+    value: null
+    image: false
+    link: null
   if $(element).is("img")
-    return "image:::" + $(element).attr("src")
+    item.value = $(element).attr("src")
+    item.link = $(element).attr("src")
+    item.image = true
+  else if !!$(element).attr('href')
+    item.value = $(element).text()
+    item.link = $(element).attr("href")
   else
-    return $(element).text()
+    item.value = $(element).text()
+  return item
 Ui.getIdSelector = (element) ->
   if element.left is null and element.right is null
     "#" + element.label
   else
     Ui.getIdSelector(element.left) + "," + Ui.getIdSelector(element.right)
-Ui.getTextArray = (elements) ->
+Ui.getItemArray = (elements) ->
   ids = Ui.getIdSelector(elements)
-  _.map $(ids), getText
+  _.map $(ids), getItem
 
 Ui.getResult = (groups) ->
   _.map groups, getTextArray
