@@ -67,26 +67,27 @@ Ui.resetHighlight= (elements, className="highlight", imageClass="image_highlight
 Ui.displayResult = (groups) ->
   _.each groups, putColor
   return
+
 Ui.putColor = (elements) ->
   ids = Ui.getIdSelector(elements)
   color = getRandomColor()
   $(ids).css "background-color", color
   return
+
 getItem = (element) ->
   item =
-    value: null
+    value: $(element).text()
     image: false
     link: null
+    centroid: groups[$(element).attr("centroid")]
   if $(element).is("img")
     item.value = $(element).attr("src")
     item.link = $(element).attr("src")
     item.image = true
   else if !!$(element).attr('href')
-    item.value = $(element).text()
     item.link = $(element).attr("href")
-  else
-    item.value = $(element).text()
   return item
+
 Ui.getIdSelector = (element) ->
   if element.left is null and element.right is null
     "#" + element.label
