@@ -1,4 +1,4 @@
-var SSQL, figue, getPageResult, getPageResultNext, http, init, level, phantom, processData, quit, request, sendResult;
+var SSQL, figue, getPageResult, getPageResultNext, http, init, level, phantom, processData, quit, request, sendResult, url;
 
 phantom = require('phantom');
 
@@ -11,6 +11,8 @@ figue = require('./vendor/figue.js');
 request = require('request');
 
 level = 2;
+
+url = null;
 
 console.old_log = console.log;
 
@@ -38,7 +40,7 @@ getPageResult = function(page, url, weights) {
 getPageResultNext = function(page, weights) {
   return page.evaluate(function() {
     var data;
-    Ui.transformRelativeUrls();
+    $(":hidden").show();
     data = run();
     return data;
   }, function(data) {
@@ -53,10 +55,22 @@ processData = function(data, page, weights) {
   }
   root = SSQL.processData(data, parsedWeights);
   root = JSON.stringify(root);
-  return page.evaluate(function(root) {
-    Ui.addStyle(root);
-    return document.documentElement.outerHTML;
-  }, sendResult, root);
+  return page.open(url, function(status) {
+    return setTimeout(function() {
+      page.injectJs("lib/launcher.js");
+      page.injectJs("vendor/jquery.js");
+      page.injectJs("vendor/jquery-ui.custom.min.js");
+      page.injectJs("vendor/underscore.js");
+      page.injectJs("vendor/pjscrape_client.js");
+      page.injectJs("lib/ui.js");
+      return page.evaluate(function(root) {
+        run();
+        Ui.transformRelativeUrls();
+        document.getElementsByTagName("head")[0].innerHTML += "<script>window.root = " + JSON.stringify(root) + ";</script>";
+        return document.documentElement.outerHTML;
+      }, sendResult, root);
+    }, 1000);
+  });
 };
 
 sendResult = function(content) {
@@ -65,7 +79,7 @@ sendResult = function(content) {
 };
 
 init = function() {
-  var args, url, weights;
+  var args, weights;
   args = process.argv;
   if (args.length === 2) {
     quit("Not enough argument", 0);

@@ -33,6 +33,7 @@ getPageResult = function(page, level, current_website) {
       page.injectJs("lib/ui.js");
       page.injectJs("lib/launcher.js");
       return page.evaluate(function() {
+        $(":hidden").show();
         return run();
       }, function(data) {
         return processData(data, page, current_website);
@@ -99,7 +100,7 @@ sendItemArray = function(array, label, current_website) {
 };
 
 init = function() {
-  console.log("Connectiong to server : " + process.env.TOOBROK_SERVER_URL);
+  console.log("Connecting to server : " + process.env.TOOBROK_SERVER_URL);
   return request.get(process.env.TOOBROK_SERVER_URL + '/websites.json', function(error, response, body) {
     var current_website, websites, _i, _len;
     if (error || response.statusCode !== 200) {

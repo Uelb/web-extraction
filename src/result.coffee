@@ -23,6 +23,7 @@ getPageResult = (page, level, current_website) ->
       page.injectJs("lib/ui.js")
       page.injectJs("lib/launcher.js")
       page.evaluate ->
+        $(":hidden").show()
         return run()
       , (data)->
         processData(data, page, current_website)
@@ -72,7 +73,7 @@ sendItemArray = (array, label, current_website) ->
 
 
 init = ->
-  console.log "Connectiong to server : " + process.env.TOOBROK_SERVER_URL
+  console.log "Connecting to server : " + process.env.TOOBROK_SERVER_URL
   request.get process.env.TOOBROK_SERVER_URL + '/websites.json', (error, response, body) ->
     if error || response.statusCode != 200
       quit "Cannot find the list of websites, check if the Rails server is on", 1

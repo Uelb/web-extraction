@@ -7,6 +7,7 @@ request = require 'request'
 
 #GLOBAL VARIABLES DEFINITIONS
 level = 2
+url = null
 
 console.old_log = console.log
 console.log = ->
@@ -33,7 +34,7 @@ getPageResult = (page, url, weights) ->
 
 getPageResultNext = (page, weights)->
   page.evaluate ()->
-    Ui.transformRelativeUrls()
+    $(":hidden").show()
     data = run()
     return data
   , (data) ->
@@ -43,10 +44,21 @@ processData = (data, page, weights) ->
   parsedWeights = JSON.parse(weights) if weights;
   root = SSQL.processData data, parsedWeights
   root = JSON.stringify root
-  page.evaluate (root)->
-    Ui.addStyle root
-    return document.documentElement.outerHTML
-  , sendResult, root
+  page.open url, (status) ->
+    setTimeout ->
+      page.injectJs "lib/launcher.js"
+      page.injectJs "vendor/jquery.js"
+      page.injectJs "vendor/jquery-ui.custom.min.js"
+      page.injectJs "vendor/underscore.js"
+      page.injectJs "vendor/pjscrape_client.js"
+      page.injectJs "lib/ui.js"
+      page.evaluate (root)->
+        run()
+        Ui.transformRelativeUrls()
+        document.getElementsByTagName("head")[0].innerHTML +=  "<script>window.root = " + JSON.stringify(root) + ";</script>"
+        return document.documentElement.outerHTML
+      , sendResult, root
+    , 1000
 
 sendResult = (content)->
   console.old_log content
