@@ -21,5 +21,6 @@ window.run = ->
   allElements = $("body").find("*:not(script,style)")
   filterUnrelevantElements allElements
   allElements.uniqueId()
+  $(":hidden").show()
   json = createJson(allElements)
   json

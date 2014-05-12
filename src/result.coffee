@@ -41,7 +41,7 @@ processData = (data, page, current_website) ->
       elements.push SSQL.findClosestElements(groups, createVector(centroid))
     page.evaluate (elements, label, current_website, groups) ->
       window.groups = groups
-      texts = []
+      items = []
       elements.forEach (x)->
         Ui.getItemArray(x).forEach (y) ->
           items.push y

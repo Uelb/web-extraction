@@ -19,13 +19,13 @@ quit = (message, resultCode) ->
 getPageResult = (page, url, weights) ->
   page.open url, (status) ->
     # page.onConsoleMessage = (msg) -> console.log "page message : " + msg
-    page.injectJs "lib/launcher.js"
-    page.injectJs "vendor/jquery.js"
-    page.injectJs "vendor/jquery-ui.custom.min.js"
-    page.injectJs "vendor/underscore.js"
-    page.injectJs "vendor/pjscrape_client.js"
-    page.injectJs "lib/ui.js"
     setTimeout ->
+      page.injectJs "lib/launcher.js"
+      page.injectJs "vendor/jquery.js"
+      page.injectJs "vendor/jquery-ui.custom.min.js"
+      page.injectJs "vendor/underscore.js"
+      page.injectJs "vendor/pjscrape_client.js"
+      page.injectJs "lib/ui.js"
       getPageResultNext page, weights
     , 1000
     return
@@ -40,7 +40,8 @@ getPageResultNext = (page, weights)->
     processData(data, page, weights)
 
 processData = (data, page, weights) ->
-  root = SSQL.processData data, JSON.parse(weights)
+  parsedWeights = JSON.parse(weights) if weights;
+  root = SSQL.processData data, parsedWeights
   root = JSON.stringify root
   page.evaluate (root)->
     Ui.addStyle root

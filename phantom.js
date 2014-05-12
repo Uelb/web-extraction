@@ -23,13 +23,13 @@ quit = function(message, resultCode) {
 
 getPageResult = function(page, url, weights) {
   page.open(url, function(status) {
-    page.injectJs("lib/launcher.js");
-    page.injectJs("vendor/jquery.js");
-    page.injectJs("vendor/jquery-ui.custom.min.js");
-    page.injectJs("vendor/underscore.js");
-    page.injectJs("vendor/pjscrape_client.js");
-    page.injectJs("lib/ui.js");
     setTimeout(function() {
+      page.injectJs("lib/launcher.js");
+      page.injectJs("vendor/jquery.js");
+      page.injectJs("vendor/jquery-ui.custom.min.js");
+      page.injectJs("vendor/underscore.js");
+      page.injectJs("vendor/pjscrape_client.js");
+      page.injectJs("lib/ui.js");
       return getPageResultNext(page, weights);
     }, 1000);
   });
@@ -47,8 +47,11 @@ getPageResultNext = function(page, weights) {
 };
 
 processData = function(data, page, weights) {
-  var root;
-  root = SSQL.processData(data, JSON.parse(weights));
+  var parsedWeights, root;
+  if (weights) {
+    parsedWeights = JSON.parse(weights);
+  }
+  root = SSQL.processData(data, parsedWeights);
   root = JSON.stringify(root);
   return page.evaluate(function(root) {
     Ui.addStyle(root);

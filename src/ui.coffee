@@ -75,11 +75,15 @@ Ui.putColor = (elements) ->
   return
 
 getItem = (element) ->
+  i = groups.length
+  id = $(element).attr("id")
+  while(i--)
+    break if groups[i].label == id
   item =
     value: $(element).text()
     image: false
     link: null
-    centroid: groups[$(element).attr("centroid")]
+    centroid: groups[i]
   if $(element).is("img")
     item.value = $(element).attr("src")
     item.link = $(element).attr("src")

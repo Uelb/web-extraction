@@ -58,9 +58,8 @@ processData = function(data, page, current_website) {
       elements.push(SSQL.findClosestElements(groups, createVector(centroid)));
     }
     page.evaluate(function(elements, label, current_website, groups) {
-      var texts;
       window.groups = groups;
-      texts = [];
+      items = [];
       elements.forEach(function(x) {
         return Ui.getItemArray(x).forEach(function(y) {
           return items.push(y);
