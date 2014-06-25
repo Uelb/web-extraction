@@ -53,7 +53,7 @@ processData = (data, page, current_website) ->
   page.close()
 
 createVector = (centroid) ->
-  return [centroid.color, centroid.background_color, centroid.width, centroid.height, centroid.text_decoration, centroid.font_style, centroid.left_alignment, centroid.top_alignment, centroid.z_index]
+  return [centroid.color, centroid.background_color, centroid.width, centroid.height, centroid.text_decoration, centroid.font_style, centroid.left_alignment, centroid.top_alignment, centroid.z_index, centroid.padding_l_r, centroid.padding_t_b, centroid.border_width]
 
 
 sendItemArray = (array, label, current_website) ->

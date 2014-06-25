@@ -50,6 +50,9 @@ SSQL.getWeightVector = (weights) ->
     weights.leftAlignment
     weights.topAlignement
     weights.zIndex
+    weights.paddingLR
+    weights.paddingTB
+    weights.borderWidth
   ]
   for weight in result
     weight = 1 unless weight
@@ -60,6 +63,9 @@ SSQL.getVector = (element) ->
   bgColor = Utils.processColorString(element.bgColor)
   width = element.width
   height = element.height
+  paddingTB = element.paddingTB
+  paddingLR = element.paddingLR
+  borderWidth = element.borderWidth
   textDecoration = element.textDecoration
   if element.textDecoration is "none"
     textDecoration = 0
@@ -97,6 +103,9 @@ SSQL.getVector = (element) ->
     leftAlignment
     topAlignement
     zIndex
+    paddingLR 
+    paddingTB 
+    borderWidth
   ]
 
 SSQL.findClosestElements = (groups, centroid) ->

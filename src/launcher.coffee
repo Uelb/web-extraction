@@ -17,6 +17,9 @@ createJson = (elements) ->
     fontStyle: $element.css("font-style")
     position: $element.position()
     zIndex: $element.css("z-index")
+    paddingLR: parseInt($elements.css("padding-left").replace("px", "")) + parseInt($element.css("padding-right").replace("px", ""))
+    paddingTB: parseInt($element.css("padding-top").replace("px", "")) + parseInt($element.css("padding-bottom").replace("px", ""))
+    borderWidth: parseInt($element.css("border-width").replace("px", ""))
 
 window.run = ->
   allElements = $("body").find("*:not(script,style)")
