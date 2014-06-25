@@ -10,12 +10,12 @@ Ui.addStyle = (root)->
   return
 
 Ui.bindGroups = (groups) ->
-  _.each groups, Ui.bind
+  underscore.each groups, Ui.bind
   return
 
 Ui.unbindGroups = (groups) ->
   $("[centroid]").removeAttr "centroid"
-  _.each groups, Ui.unbind
+  underscore.each groups, Ui.unbind
 
 Ui.unbind = (elements) ->
   ids = Ui.getIdSelector(elements)
@@ -65,7 +65,7 @@ Ui.resetHighlight= (elements, className="highlight", imageClass="image_highlight
   return
 
 Ui.displayResult = (groups) ->
-  _.each groups, putColor
+  underscore.each groups, putColor
   return
 
 Ui.putColor = (elements) ->
@@ -99,10 +99,10 @@ Ui.getIdSelector = (element) ->
     Ui.getIdSelector(element.left) + "," + Ui.getIdSelector(element.right)
 Ui.getItemArray = (elements) ->
   ids = Ui.getIdSelector(elements)
-  _.map $(ids), getItem
+  underscore.map $(ids), getItem
 
 Ui.getResult = (groups) ->
-  _.map groups, getTextArray
+  underscore.map groups, getTextArray
 Ui.getRandomColor = ->
   letters = "0123456789ABCDEF".split("")
   color = "#"
