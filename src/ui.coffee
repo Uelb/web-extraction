@@ -1,3 +1,5 @@
+underscore = _ unless underscore
+
 Ui = 
   api_server_url: "http://toobrok.com/"
   result:

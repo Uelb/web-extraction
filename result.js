@@ -75,7 +75,7 @@ processData = function(data, page, current_website) {
 };
 
 createVector = function(centroid) {
-  return [centroid.color, centroid.background_color, centroid.width, centroid.height, centroid.text_decoration, centroid.font_style, centroid.left_alignment, centroid.top_alignment, centroid.z_index, centroid.padding_l_r, centroid.padding_t_b, centroid.border_width];
+  return [centroid.color, centroid.background_color, centroid.width, centroid.height, centroid.text_decoration, centroid.font_style, centroid.left_alignment, centroid.top_alignment, centroid.z_index, centroid.padding_l_r, centroid.padding_t_b, centroid.border_horizontal_width, centroid.border_vertical_width];
 };
 
 sendItemArray = function(array, label, current_website) {
