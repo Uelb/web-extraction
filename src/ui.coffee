@@ -1,4 +1,5 @@
 underscore = _ unless underscore
+jq = jQuery unless jq
 
 Ui = 
   api_server_url: "http://toobrok.com/"
@@ -23,7 +24,7 @@ Ui =
       border_vertical_width: 0
 
 Ui.addStyle = (root)->
-  $("head").append "<script>window.root = " + JSON.stringify(root) + ";</script>" if root
+  jq("head").append "<script>window.root = " + JSON.stringify(root) + ";</script>" if root
   return
 
 Ui.bindGroups = (groups) ->
@@ -31,54 +32,54 @@ Ui.bindGroups = (groups) ->
   return
 
 Ui.unbindGroups = (groups) ->
-  $("[centroid]").removeAttr "centroid"
+  jq("[centroid]").removeAttr "centroid"
   underscore.each groups, Ui.unbind
 
 Ui.unbind = (elements) ->
   ids = Ui.getIdSelector(elements)
-  $(ids).unbind 'mouseover'
-  $(ids).unbind 'mouseout'
-  $(ids).unbind 'click'
+  jq(ids).unbind 'mouseover'
+  jq(ids).unbind 'mouseout'
+  jq(ids).unbind 'click'
 
 Ui.bind = (elements, index) ->
   ids = Ui.getIdSelector(elements)
-  $(ids).attr("centroid", index)
-  $(ids).mouseover (event) ->
+  jq(ids).attr("centroid", index)
+  jq(ids).mouseover (event) ->
     event.stopPropagation()
-    Ui.highlight $(ids)
-  $(ids).mouseout (event) ->
+    Ui.highlight jq(ids)
+  jq(ids).mouseout (event) ->
     event.stopPropagation()
-    Ui.resetHighlight $(ids)
-  $(ids).click (event) ->
+    Ui.resetHighlight jq(ids)
+  jq(ids).click (event) ->
     event.stopPropagation()
     event.preventDefault()
-    if $(".selected_highlight").size() isnt 0
-      old_centroid_index = $(".selected_highlight").attr "centroid"
-      new_centroid_index = $(this).attr "centroid"
+    if jq(".selected_highlight").size() isnt 0
+      old_centroid_index = jq(".selected_highlight").attr "centroid"
+      new_centroid_index = jq(this).attr "centroid"
       if old_centroid_index != new_centroid_index
         old_centroid = groups[old_centroid_index]
         new_centroid = groups[new_centroid_index]
-        if $(".extraction-center .selected").hasClass "cross"
+        if jq(".extraction-center .selected").hasClass "cross"
           centroid = Ui.findCommonAncestor root, old_centroid, new_centroid
           Ui.resetSelectedHiglights()
-          Ui.highlight $(Ui.getIdSelector(centroid)), "selected_highlight"
+          Ui.highlight jq(Ui.getIdSelector(centroid)), "selected_highlight"
           return
 
-    if $(this).hasClass "selected_highlight" || $(this).hasClass "selected_highlight_image"
-      Ui.resetHighlight $(ids), "selected_highlight", "selected_highlight_image"
+    if jq(this).hasClass "selected_highlight" || jq(this).hasClass "selected_highlight_image"
+      Ui.resetHighlight jq(ids), "selected_highlight", "selected_highlight_image"
     else
-      Ui.highlight $(ids), "selected_highlight", "selected_highlight_image"
+      Ui.highlight jq(ids), "selected_highlight", "selected_highlight_image"
 
   return
 
 Ui.highlight = (elements, className="highlight", imageClass="image_highlight")->
-  $(elements).filter(":not(img)").addClass className, 300
-  $(elements).filter("img").addClass imageClass, 300
+  jq(elements).filter(":not(img)").addClass className, 300
+  jq(elements).filter("img").addClass imageClass, 300
   return
 
 Ui.resetHighlight= (elements, className="highlight", imageClass="image_highlight")->
-  $(elements).filter(":not(img)").removeClass className, 100
-  $(elements).filter("img").removeClass imageClass, 100
+  jq(elements).filter(":not(img)").removeClass className, 100
+  jq(elements).filter("img").removeClass imageClass, 100
   return
 
 Ui.displayResult = (groups) ->
@@ -88,25 +89,25 @@ Ui.displayResult = (groups) ->
 Ui.putColor = (elements) ->
   ids = Ui.getIdSelector(elements)
   color = getRandomColor()
-  $(ids).css "background-color", color
+  jq(ids).css "background-color", color
   return
 
 getItem = (element) ->
   i = groups.length
-  id = $(element).attr("id")
+  id = jq(element).attr("id")
   while(i--)
     break if groups[i].label == id
   item =
-    value: $(element).text()
+    value: jq(element).text()
     image: false
     link: null
     centroid: groups[i]
-  if $(element).is("img")
-    item.value = $(element).attr("src")
-    item.link = $(element).attr("src")
+  if jq(element).is("img")
+    item.value = jq(element).attr("src")
+    item.link = jq(element).attr("src")
     item.image = true
-  else if !!$(element).attr('href')
-    item.link = $(element).attr("href")
+  else if !!jq(element).attr('href')
+    item.link = jq(element).attr("href")
   return item
 
 Ui.getIdSelector = (element) ->
@@ -116,7 +117,7 @@ Ui.getIdSelector = (element) ->
     Ui.getIdSelector(element.left) + "," + Ui.getIdSelector(element.right)
 Ui.getItemArray = (elements) ->
   ids = Ui.getIdSelector(elements)
-  underscore.map $(ids), getItem
+  underscore.map jq(ids), getItem
 
 Ui.getResult = (groups) ->
   underscore.map groups, getTextArray
@@ -135,12 +136,12 @@ Ui.init = () ->
 
 Ui.transformRelativeUrls = ->
   if _pjs
-    $.each $('script'), (key,value)->
-      $(value).attr('src', _pjs.toFullUrl($(value).attr('src')))
-    $.each $('link'), (key,value)->
-      $(value).attr('href', _pjs.toFullUrl($(value).attr('href')))
-    $.each $('img'), (key,value)->
-      $(value).attr('src', _pjs.toFullUrl($(value).attr('src')))
+    jq.each jq('script'), (key,value)->
+      jq(value).attr('src', _pjs.toFullUrl(jq(value).attr('src')))
+    jq.each jq('link'), (key,value)->
+      jq(value).attr('href', _pjs.toFullUrl(jq(value).attr('href')))
+    jq.each jq('img'), (key,value)->
+      jq(value).attr('src', _pjs.toFullUrl(jq(value).attr('src')))
   else
     throw 'Not supported, the pjs library is not accessible'
 
@@ -162,12 +163,12 @@ Ui.save = () ->
     for key, i in Object.keys(Ui.result.statistic)
       Ui.result.statistic[key] +=1 if bool[i]
 
-  Ui.result.url = $("meta[name='url']").attr("content")
+  Ui.result.url = jq("meta[name='url']").attr("content")
   Ui.result.weights = window.weights
   if Ui.result.labels is {}
     alert('You have not chosen any labels to save...')
   else
-    $.post window.location.origin + "/centroids", Ui.result, (data)->
+    jq.post window.location.origin + "/centroids", Ui.result, (data)->
       window.location.href = '/websites'
 Ui.clusterize = (root, level, result) ->
   if root.dist <= level and not (this.left == null && this.right == null)
@@ -187,7 +188,7 @@ Ui.findCommonAncestor = (root,a,b) ->
   return rightCommonAncestor
 
 Ui.resetSelectedHiglights = ()->
-  $(".selected_highlight").removeClass "selected_highlight"
-  $(".selected_highlight_image").removeClass "selected_highlight_image"
+  jq(".selected_highlight").removeClass "selected_highlight"
+  jq(".selected_highlight_image").removeClass "selected_highlight_image"
 
 window.Ui = Ui
