@@ -6,6 +6,21 @@ Ui =
     labels: {}
     url: ""
     weights: {}
+    number_of_centroid: 0
+    statistic:
+      color: 0
+      background_color: 0
+      width: 0
+      height: 0
+      text_decoration: 0
+      font_style: 0
+      left_alignment: 0
+      top_alignment: 0
+      z_index: 0
+      padding_l_r: 0
+      padding_t_b: 0
+      border_horizontal_width: 0
+      border_vertical_width: 0
 
 Ui.addStyle = (root)->
   $("head").append "<script>window.root = " + JSON.stringify(root) + ";</script>" if root
@@ -130,6 +145,23 @@ Ui.transformRelativeUrls = ->
     throw 'Not supported, the pjs library is not accessible'
 
 Ui.save = () ->
+  underscore.each Ui.result.labels, (value, key, list) ->
+    Ui.result.number_of_centroid++
+    bool = []
+    if value.centroids.length == 1
+      left = value.centroids[0].left.centroid
+      right = value.centroids[0].right.centroid
+      for i in [0..12]
+        bool[i] = (left[i] == right[i])
+    else
+      left = value.centroids[0].centroid
+      for i in [0..12]
+        bool[i] = true
+        for element in value.centroids
+          bool[i] = bool[i] && (element.centroid[i] == left[i])
+    for key, i in Object.keys(Ui.result.statistic)
+      Ui.result.statistic[key] +=1 if bool[i]
+
   Ui.result.url = $("meta[name='url']").attr("content")
   Ui.result.weights = window.weights
   if Ui.result.labels is {}
