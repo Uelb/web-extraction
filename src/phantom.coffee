@@ -56,7 +56,7 @@ processData = (data, page, weights) ->
         run()
         Ui.transformRelativeUrls()
         document.getElementsByTagName("head")[0].innerHTML +=  "<script>window.root = " + JSON.stringify(root) + ";</script>"
-        return document.documentElement.outerHTML
+        return new XMLSerializer().serializeToString(document)
       , sendResult, root
     , 1000
 
